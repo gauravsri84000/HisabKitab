@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HisabKitab - Instant UPI QR & Bill Splitter</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass-card {
+            background: rgba(30, 41, 59, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 min-h-screen text-slate-100 font-sans antialiased flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
+
+    <!-- Header / Navbar -->
+    <header class="w-full border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-4 py-3.5 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                    <i data-lucide="split" class="w-5 h-5 text-white"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-xl tracking-tight text-white">HisabKitab</h1>
+                    <p class="text-xs text-indigo-300 font-medium">Instant UPI QR & Bill Splitter</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button onclick="resetForm()" class="px-3 py-1.5 text-xs font-semibold text-slate-200 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-lg transition border border-slate-700 flex items-center gap-1.5 shadow-sm">
+                    <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Reset
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-4xl w-full mx-auto px-4 py-8 flex-grow grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+        
+        <!-- Left Panel: Input Configuration -->
+        <section class="md:col-span-6 glass-card rounded-2xl p-6 shadow-2xl space-y-5">
+            <div class="flex items-center justify-between border-b border-slate-700 pb-3">
+                <h2 class="text-base font-bold text-white flex items-center gap-2">
+                    <i data-lucide="sliders" class="w-4 h-4 text-indigo-400"></i> Payment Details
+                </h2>
+                <span class="text-xs px-2.5 py-1 rounded-full bg-indigo-500/20 text-indigo-300 font-semibold border border-indigo-500/30">Secure UPI</span>
+            </div>
+
+            <!-- UPI ID & Payee Name -->
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">UPI ID / VPA *</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                            <i data-lucide="at-sign" class="w-4 h-4"></i>
+                        </span>
+                        <input type="text" id="upiId" placeholder="e.g. 9876543210@paytm" class="w-full pl-9 pr-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white placeholder-slate-500 transition font-medium">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">Payee Name</label>
+                    <input type="text" id="payeeName" placeholder="e.g. Gaurav Srivastav" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white placeholder-slate-500 transition font-medium">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">Total Amount (₹) *</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-indigo-400 font-bold text-base">₹</span>
+                            <input type="number" id="amount" placeholder="5999" class="w-full pl-8 pr-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white placeholder-slate-500 transition font-bold">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">Note / Desc</label>
+                        <input type="text" id="note" placeholder="Dinner / Bill" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white placeholder-slate-500 transition font-medium">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bill Split Section -->
+            <div class="pt-3 border-t border-slate-700 space-y-4">
+                <div class="flex items-center justify-between">
+                    <label class="text-sm font-bold text-white flex items-center gap-2">
+                        <i data-lucide="users" class="w-4 h-4 text-violet-400"></i> Split Bill
+                    </label>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs text-slate-300 font-medium">People:</span>
+                        <input type="number" id="splitCount" min="1" max="10" value="2" class="w-14 px-2 py-1 bg-slate-900 border border-slate-700 rounded-lg text-center text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                </div>
+
+                <div id="splitInputsContainer" class="space-y-2.5 max-h-48 overflow-y-auto pr-1">
+                    <!-- Dynamic split rows injected via JS -->
+                </div>
+
+                <div class="flex items-center justify-between text-xs font-semibold px-1">
+                    <span id="splitStatus" class="text-emerald-400 flex items-center gap-1">
+                        <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> Splits match total
+                    </span>
+                    <button onclick="equalSplit()" class="text-indigo-400 hover:text-indigo-300 underline underline-offset-2">Split Equally</button>
+                </div>
+            </div>
+
+            <!-- Generate Action -->
+            <button onclick="generateQRs()" class="w-full py-3.5 px-4 bg-gradient-to-r from-indigo-600 via-indigo-500 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-extrabold rounded-xl shadow-lg shadow-indigo-600/40 transition transform active:scale-[0.99] flex items-center justify-center gap-2 text-sm tracking-wide">
+                <i data-lucide="qr-code" class="w-5 h-5"></i> Generate QR & Splits
+            </button>
+        </section>
+
+        <!-- Right Panel: QR Output & Share -->
+        <section class="md:col-span-6 space-y-6">
+            
+            <!-- Main QR Card -->
+            <div class="glass-card rounded-2xl p-6 shadow-2xl text-center space-y-4 relative overflow-hidden">
+                <div class="absolute -right-10 -top-10 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none"></div>
+                
+                <h3 class="text-xs font-bold uppercase tracking-wider text-indigo-300">Main Payment QR</h3>
+                
+                <div class="flex justify-center">
+                    <div class="p-3 bg-white rounded-2xl shadow-xl inline-block border border-slate-700">
+                        <div id="mainQrCode" class="w-48 h-48 flex items-center justify-center text-slate-500">
+                            <!-- Fallback state -->
+                            <div class="text-center p-4 text-xs">
+                                <i data-lucide="scan" class="w-8 h-8 mx-auto mb-2 opacity-60 text-slate-600"></i>
+                                Enter UPI & amount to generate QR
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="mainSummary" class="hidden space-y-1">
+                    <p id="displayPayee" class="text-sm font-bold text-slate-200"></p>
+                    <p id="displayAmount" class="text-3xl font-extrabold text-indigo-400"></p>
+                    <p id="displayUpi" class="text-xs text-indigo-200 font-mono bg-slate-900/80 py-1 px-3 rounded-lg inline-block border border-slate-700"></p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 pt-2">
+                    <button onclick="shareMainQR()" id="shareMainBtn" disabled class="py-2.5 px-4 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed rounded-xl text-xs font-bold text-white transition flex items-center justify-center gap-2 border border-slate-700 shadow-sm">
+                        <i data-lucide="share-2" class="w-4 h-4 text-indigo-400"></i> Share Link
+                    </button>
+                    <button onclick="copyUpiLink()" id="copyUpiBtn" disabled class="py-2.5 px-4 bg-indigo-900/50 hover:bg-indigo-900 disabled:opacity-40 disabled:cursor-not-allowed rounded-xl text-xs font-bold text-indigo-200 transition flex items-center justify-center gap-2 border border-indigo-700 shadow-sm">
+                        <i data-lucide="copy" class="w-4 h-4 text-indigo-400"></i> Copy URL
+                    </button>
+                </div>
+            </div>
+
+            <!-- Individual Split QRs Container -->
+            <div id="splitQrsSection" class="hidden glass-card rounded-2xl p-6 shadow-2xl space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-700 pb-3">
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                        <i data-lucide="users" class="w-4 h-4 text-violet-400"></i> Individual Split QRs
+                    </h3>
+                    <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-slate-800 text-indigo-300 border border-slate-700" id="splitCountBadge">0 Splits</span>
+                </div>
+                <div id="splitQrsList" class="grid grid-cols-1 gap-3 max-h-80 overflow-y-auto pr-1">
+                    <!-- Individual split QR cards rendered here -->
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full border-t border-slate-800 bg-slate-900/80 backdrop-blur-md py-4 mt-8 text-center text-xs text-slate-400 font-medium">
+        <p>Designed and developed by Gaurav Srivastav</p>
+    </footer>
+
+    <!-- QR Code Generator Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        const upiIdInput = document.getElementById('upiId');
+        const payeeNameInput = document.getElementById('payeeName');
+        const amountInput = document.getElementById('amount');
+        const noteInput = document.getElementById('note');
+        const splitCountInput = document.getElementById('splitCount');
+        const splitInputsContainer = document.getElementById('splitInputsContainer');
+        const splitStatus = document.getElementById('splitStatus');
+
+        // Load saved defaults
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedUpi = localStorage.getItem('hisabkitab_upi');
+            const savedName = localStorage.getItem('hisabkitab_name');
+            if (savedUpi) upiIdInput.value = savedUpi;
+            if (savedName) payeeNameInput.value = savedName;
+
+            updateSplitInputs();
+        });
+
+        splitCountInput.addEventListener('input', updateSplitInputs);
+        amountInput.addEventListener('input', () => {
+            equalSplit();
+            validateSplits();
+        });
+
+        function updateSplitInputs() {
+            const count = Math.max(1, Math.min(10, parseInt(splitCountInput.value) || 1));
+            splitCountInput.value = count;
+            
+            const total = parseFloat(amountInput.value) || 0;
+            const defaultShare = count > 0 ? (total / count).toFixed(2) : 0;
+
+            let html = '';
+            for (let i = 0; i < count; i++) {
+                html += `
+                    <div class="flex items-center gap-2 bg-slate-900/80 p-2.5 rounded-xl border border-slate-700">
+                        <span class="text-xs font-bold text-indigo-300 w-16">Person ${i+1}</span>
+                        <input type="text" placeholder="Name (Opt)" class="split-name w-1/3 px-2.5 py-1.5 bg-slate-800 border border-slate-600 rounded-lg text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-medium">
+                        <div class="relative flex-grow">
+                            <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center text-xs text-indigo-400 font-bold">₹</span>
+                            <input type="number" value="${defaultShare}" oninput="validateSplits()" class="split-amount w-full pl-6 pr-2.5 py-1.5 bg-slate-800 border border-slate-600 rounded-lg text-xs font-bold text-white focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        </div>
+                    </div>
+                `;
+            }
+            splitInputsContainer.innerHTML = html;
+            validateSplits();
+        }
+
+        function equalSplit() {
+            const total = parseFloat(amountInput.value) || 0;
+            const amounts = document.querySelectorAll('.split-amount');
+            if (amounts.length === 0) return;
+            const share = (total / amounts.length).toFixed(2);
+            amounts.forEach((el, index) => {
+                if (index === amounts.length - 1) {
+                    let runningSum = 0;
+                    for (let i = 0; i < amounts.length - 1; i++) {
+                        runningSum += parseFloat(amounts[i].value) || 0;
+                    }
+                    el.value = (total - runningSum).toFixed(2);
+                } else {
+                    el.value = share;
+                }
+            });
+            validateSplits();
+        }
+
+        function validateSplits() {
+            const total = parseFloat(amountInput.value) || 0;
+            const amounts = document.querySelectorAll('.split-amount');
+            let sum = 0;
+            amounts.forEach(el => sum += parseFloat(el.value) || 0);
+
+            if (Math.abs(sum - total) < 0.1 || total === 0) {
+                splitStatus.innerHTML = `<i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> Splits match total`;
+                splitStatus.className = "text-emerald-400 flex items-center gap-1 text-xs font-semibold";
+            } else {
+                splitStatus.innerHTML = `<i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> Sum (₹${sum.toFixed(2)}) ≠ Total (₹${total})`;
+                splitStatus.className = "text-amber-400 flex items-center gap-1 text-xs font-semibold";
+            }
+            lucide.createIcons();
+        }
+
+        function generateQRs() {
+            const upi = upiIdInput.value.trim();
+            const name = payeeNameInput.value.trim();
+            const amount = parseFloat(amountInput.value);
+
+            if (!upi) {
+                alert('Please enter a valid UPI ID');
+                upiIdInput.focus();
+                return;
+            }
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid total amount');
+                amountInput.focus();
+                return;
+            }
+
+            localStorage.setItem('hisabkitab_upi', upi);
+            if (name) localStorage.setItem('hisabkitab_name', name);
+
+            const note = noteInput.value.trim() || 'HisabKitab Payment';
+            
+            // 1. Main QR
+            const mainUpiUrl = `upi://pay?pa=${encodeURIComponent(upi)}&pn=${encodeURIComponent(name || 'Merchant')}&am=${amount.toFixed(2)}&cu=INR&tn=${encodeURIComponent(note)}`;
+            renderQR('mainQrCode', mainUpiUrl, 160);
+
+            document.getElementById('displayPayee').innerText = name || upi;
+            document.getElementById('displayAmount').innerText = `₹${amount.toFixed(2)}`;
+            document.getElementById('displayUpi').innerText = upi;
+            document.getElementById('mainSummary').classList.remove('hidden');
+            document.getElementById('shareMainBtn').removeAttribute('disabled');
+            document.getElementById('copyUpiBtn').removeAttribute('disabled');
+
+            // 2. Individual Splits
+            const splitRows = document.querySelectorAll('#splitInputsContainer > div');
+            const splitQrsList = document.getElementById('splitQrsList');
+            let splitHtml = '';
+
+            splitRows.forEach((row, idx) => {
+                const personNameInput = row.querySelector('.split-name');
+                const personAmtInput = row.querySelector('.split-amount');
+                const pName = personNameInput.value.trim() || `Person ${idx + 1}`;
+                const pAmt = parseFloat(personAmtInput.value) || 0;
+
+                if (pAmt > 0) {
+                    const splitUpiUrl = `upi://pay?pa=${encodeURIComponent(upi)}&pn=${encodeURIComponent(name || 'Merchant')}&am=${pAmt.toFixed(2)}&cu=INR&tn=${encodeURIComponent(`${note} (${pName})`)}`;
+                    
+                    splitHtml += `
+                        <div class="bg-slate-900/90 p-3.5 rounded-xl border border-slate-700 flex items-center justify-between gap-3 shadow-md">
+                            <div class="space-y-1.5">
+                                <span class="text-xs font-bold text-indigo-300 bg-indigo-950 px-2 py-0.5 rounded border border-indigo-800/60">${pName}</span>
+                                <p class="text-lg font-extrabold text-white">₹${pAmt.toFixed(2)}</p>
+                                <button onclick="shareSplitQR('${encodeURIComponent(splitUpiUrl)}', '${pName}', ${pAmt})" class="text-xs font-semibold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 mt-1 transition">
+                                    <i data-lucide="share-2" class="w-3.5 h-3.5"></i> Share with ${pName}
+                                </button>
+                            </div>
+                            <div class="bg-white p-2 rounded-xl flex-shrink-0 shadow-inner border border-slate-700" id="split-qr-${idx}">
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            splitQrsList.innerHTML = splitHtml;
+            document.getElementById('splitQrsSection').classList.remove('hidden');
+            document.getElementById('splitCountBadge').innerText = `${splitRows.length} Splits`;
+
+            splitRows.forEach((row, idx) => {
+                const personAmtInput = row.querySelector('.split-amount');
+                const pAmt = parseFloat(personAmtInput.value) || 0;
+                const personNameInput = row.querySelector('.split-name');
+                const pName = personNameInput.value.trim() || `Person ${idx + 1}`;
+                if (pAmt > 0) {
+                    const splitUpiUrl = `upi://pay?pa=${encodeURIComponent(upi)}&pn=${encodeURIComponent(name || 'Merchant')}&am=${pAmt.toFixed(2)}&cu=INR&tn=${encodeURIComponent(`${note} (${pName})`)}`;
+                    renderQR(`split-qr-${idx}`, splitUpiUrl, 80);
+                }
+            });
+
+            lucide.createIcons();
+        }
+
+        function renderQR(containerId, text, size) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            try {
+                const qr = qrcode(0, 'M');
+                qr.addData(text);
+                qr.make();
+                
+                const imgTag = qr.createImgTag(4, 4);
+                container.innerHTML = imgTag;
+                const img = container.querySelector('img');
+                if (img) {
+                    img.width = size;
+                    img.height = size;
+                    img.className = "rounded-lg shadow-sm mx-auto";
+                }
+            } catch (e) {
+                container.innerHTML = `<span class="text-[10px] text-red-400">Error generating QR</span>`;
+            }
+        }
+
+        function shareMainQR() {
+            const amount = parseFloat(amountInput.value) || 0;
+            const upi = upiIdInput.value.trim();
+            const name = payeeNameInput.value.trim();
+            const note = noteInput.value.trim() || 'HisabKitab Payment';
+            const upiUrl = `upi://pay?pa=${encodeURIComponent(upi)}&pn=${encodeURIComponent(name || 'Merchant')}&am=${amount.toFixed(2)}&cu=INR&tn=${encodeURIComponent(note)}`;
+
+            triggerShare(`HisabKitab Payment - ₹${amount.toFixed(2)}`, `Please pay ₹${amount.toFixed(2)} via UPI (${upi}) for ${note}. Click to pay:`, upiUrl);
+        }
+
+        function shareSplitQR(encodedUrl, name, amount) {
+            const url = decodeURIComponent(encodedUrl);
+            triggerShare(`HisabKitab Split - ${name}`, `Hi ${name}, your share is ₹${amount.toFixed(2)}. Pay via UPI:`, url);
+        }
+
+        function triggerShare(title, text, url) {
+            if (navigator.share) {
+                navigator.share({ title, text, url }).catch(() => {
+                    fallbackShare(text, url);
+                });
+            } else {
+                fallbackShare(text, url);
+            }
+        }
+
+        function fallbackShare(text, url) {
+            const shareText = `${text}\n${url}`;
+            // WhatsApp Direct fallback
+            const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
+            window.open(waUrl, '_blank');
+        }
+
+        function copyUpiLink() {
+            const amount = parseFloat(amountInput.value) || 0;
+            const upi = upiIdInput.value.trim();
+            const name = payeeNameInput.value.trim();
+            const note = noteInput.value.trim() || 'HisabKitab Payment';
+            const upiUrl = `upi://pay?pa=${encodeURIComponent(upi)}&pn=${encodeURIComponent(name || 'Merchant')}&am=${amount.toFixed(2)}&cu=INR&tn=${encodeURIComponent(note)}`;
+
+            navigator.clipboard.writeText(upiUrl).then(() => {
+                alert('Main UPI Payment URL copied to clipboard successfully!');
+            }).catch(() => {
+                prompt("Copy UPI URL:", upiUrl);
+            });
+        }
+
+        function resetForm() {
+            amountInput.value = '';
+            noteInput.value = '';
+            splitCountInput.value = '2';
+            updateSplitInputs();
+            document.getElementById('mainQrCode').innerHTML = `
+                <div class="text-center p-4 text-xs text-slate-500">
+                    <i data-lucide="scan" class="w-8 h-8 mx-auto mb-2 opacity-60 text-slate-600"></i>
+                    Enter UPI & amount to generate QR
+                </div>`;
+            document.getElementById('mainSummary').classList.add('hidden');
+            document.getElementById('shareMainBtn').setAttribute('disabled', 'true');
+            document.getElementById('copyUpiBtn').setAttribute('disabled', 'true');
+            document.getElementById('splitQrsSection').classList.add('hidden');
+            lucide.createIcons();
+        }
+    </script>
+</body>
+</html>
